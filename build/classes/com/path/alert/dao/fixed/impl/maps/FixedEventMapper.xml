@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="fixedEventMapper">
+	<update id="updateAlrtQueueStatus" parameterType="com.path.alert.vo.fixed.ALRT_QUEUE_ONLINECO">
+	  UPDATE ALRT_QUEUE_ONLINE
+	   SET STATUS = 'R',SESSION_ID = #{sessionID} ,
+	   MACHINE_IP_NAME = #{machineIpName}
+	   WHERE STATUS = 'N' AND BULK_YN = #{bulkYN}
+	 </update>
+	 
+	 <resultMap type="com.path.alert.vo.fixed.ALRT_QUEUE_ONLINECO" id="alrtQueueMap">
+	   <result column="ID" 		property="ID" />
+	   <result column="FIXED_EVT_ID" 		property="fixedEvtID" />
+	   <result column="STATUS" 		property="status" />
+	   <result column="BULK_YN" 		property="bulkYN" />
+	   <result column="EVT_ID" 		property="evtId" />
+	   <result column="LANG_ID" 		property="langCode" />
+	 </resultMap>
+	 
+	 <resultMap type="com.path.alert.vo.fixed.AlertReceiverCO" id="receiverMap">
+	    <result column="ID" 		property="id" />
+	    <result column="QUEUE_ID" 		property="queueID" />
+	    <result column="COMP_CODE" 		property="compCode" />
+	    <result column="BRANCH_CODE" 		property="account.branch" />
+	    <result column="CURRENCY_CODE" 		property="account.currency" />
+	    <result column="GL_CODE" 		property="account.accGl" />
+	    <result column="CIF_SUB_NO" 		property="account.cifNo" />
+	    <result column="SL_NO" 		property="account.serialNo" />
+	    <result column="CIF_NO" 		property="cifNO" />
+	    <result column="imalUserId" 		property="IMAL_USR_ID" />
+	    <result column="CHANNEL_END_USR_ID" 		property="endChannelUser" />
+	    <result column="FACEBOOK_SOCIAL_ID" 		property="fbID" />
+	    <result column="TWITTER_SOCIAL_ID" 		property="twID" />
+	    <result column="SUBCRIBER_ID" 		property="subscriberID" />
+	    <result column="EMAIL_ID" 		property="email" />
+	    <result column="MOBILE_PHONE" 		property="mobile" />
+	 </resultMap>
+	 
+	 <select id="getReceiverDetails" parameterType="com.path.alert.vo.fixed.AlertReceiverCO" resultMap="receiverMap">
+	   SELECT ALRT_RECEIVER_DETAILS.ID,
+	     ALRT_RECEIVER_DETAILS.QUEUE_ID,	     
+	     ALRT_RECEIVER_DETAILS.COMP_CODE,
+	     ALRT_RECEIVER_DETAILS.BRANCH_CODE,
+	     ALRT_RECEIVER_DETAILS.CURRENCY_CODE,
+	     ALRT_RECEIVER_DETAILS.GL_CODE,
+	     ALRT_RECEIVER_DETAILS.CIF_SUB_NO,
+	     ALRT_RECEIVER_DETAILS.SL_NO,
+	     ALRT_RECEIVER_DETAILS.CIF_NO,
+	     ALRT_RECEIVER_DETAILS.IMAL_USR_ID,
+	     ALRT_RECEIVER_DETAILS.CHANNEL_END_USR_ID ,
+	     ALRT_RECEIVER_DETAILS.FACEBOOK_SOCIAL_ID ,
+	     ALRT_RECEIVER_DETAILS.TWITTER_SOCIAL_ID ,
+	     ALRT_RECEIVER_DETAILS.SUBCRIBER_ID,
+	     ALRT_RECEIVER_DETAILS.EMAIL_ID,
+	     ALRT_RECEIVER_DETAILS.MOBILE_PHONE	      
+	    FROM ALRT_RECEIVER_DETAILS,ALRT_QUEUE_ONLINE
+	     WHERE ALRT_QUEUE_ONLINE.ID = #{queueID}
+	       AND ALRT_RECEIVER_DETAILS.QUEUE_ID = ALRT_QUEUE_ONLINE.ID
+	     
+	 </select>
+	   
+	 <select id="selectFromQueueOnline" resultMap="alrtQueueMap" parameterType="com.path.alert.vo.fixed.ALRT_QUEUE_ONLINECO">
+	   SELECT * 
+	   FROM ALRT_QUEUE_ONLINE 
+	   WHERE STATUS = 'R' 
+	   AND SESSION_ID = #{sessionID}
+	    AND BULK_YN = #{bulkYN} 
+	 </select>
+	 
+	 <resultMap type="com.path.alert.vo.fixed.ALRT_QUEUE_DETAILSCO" id="alrtQueueDtlsMap">
+	    <result column="TABLE_NAME" 		property="tableName" />
+	    <result column="JSON_VALUES" 		property="newValues" />
+	    <result column="WHERE_CONDITION" 		property="whereSyntax" />
+	 </resultMap>
+	 
+	 <select id="returnReceiverData" parameterType="com.path.alert.vo.fixed.AlertReceiverCO"
+	 	resultMap="alrtQueueDtlsMap">
+	 	SELECT JSON_VALUES,WHERE_CONDITION,TABLE_NAME 
+	 	FROM ALRT_RECEIVER_DATA 
+	 	WHERE RECEIVER_ID = #{id}	
+	 </select>
+	 
+	 <select id="getFixedEvtId" parameterType="java.math.BigDecimal" resultType="java.math.BigDecimal">
+	  SELECT FIXED_EVENT_ID FROM ALRT_EVT WHERE EVT_ID = #{evtID}
+	 </select>
+	 
+	 <select id="getReceiverRow" parameterType="com.path.alert.vo.fixed.AccountQueue" resultMap="receiverMap">
+	   SELECT ALRT_RECEIVER_DETAILS.*,ALRT_RECEIVER_DETAILS.TABLE_NAME
+	     FROM ALRT_RECEIVER_DETAILS
+	     WHERE ALRT_RECEIVER_DETAILS.QUEUE_ID = #{queueID}
+	       AND ALRT_RECEIVER_DETAILS.BRANCH_CODE = #{account.branch}
+	       AND ALRT_RECEIVER_DETAILS.CURRENCY_CODE = #{account.currency}
+	       AND ALRT_RECEIVER_DETAILS.GL_CODE = #{account.accGl}
+	       AND ALRT_RECEIVER_DETAILS.CIF_SUB_NO = #{account.cifNo}
+	       AND ALRT_RECEIVER_DETAILS.SL_NO = #{account.serialNo}
+	       AND ALRT_RECEIVER_DETAILS.TABLE_NAME = #{tableName}
+	 </select>
+	 
+	 <resultMap type="com.path.alert.vo.fixed.ALRT_FIXED_GEN_EXPCO" id="genExpressionMap">
+	   <result column="COLUMN_NAME" 		property="columnName" />
+	   <result column="FIXED_OPERATOR" 		property="fixedOperator" />
+	   <result column="NEW_VALUE" 		property="newValue" />
+	 </resultMap>
+	 
+	 <select id="getGenExpression" parameterType="java.math.BigDecimal" resultMap="genExpressionMap">
+	    SELECT * 
+	    FROM ALRT_FIXED_GEN_EXP
+	    WHERE FIXED_EVT_ID = #{evtId}
+	 </select>
+	 
+	 <select id="returnAllEvtByFixed" parameterType="com.path.alert.vo.fixed.ALRT_QUEUE_ONLINECO"
+	   resultType="java.math.BigDecimal">
+	   SELECT EVT_ID 
+	   FROM ALRT_EVT 
+	   WHERE FIXED_EVT_ID = #{fixedEvtID}	
+	 </select>
+	 
+	 <select id="validateGenExp" parameterType="com.path.alert.vo.fixed.FixedGenExpParamCO"
+	 resultType="java.lang.Integer">
+	   SELECT COUNT(1) 
+	   FROM ALRT_FIXED_GEN_EXP
+	   WHERE ALRT_FIXED_GEN_EXP.FIXED_EVT_ID = #{evtId}
+	   AND ALRT_FIXED_GEN_EXP.COLUMN_NAME  = #{columnName}
+	   AND   #{value}   #{operationType} ALRT_FIXED_GEN_EXP.NEW_VALUE
+	 </select>
+	 
+	 <select id="getColumnsName" parameterType="java.math.BigDecimal" resultType="java.lang.String">
+	 SELECT PARAM_COLUMN_NAME
+	 FROM ALRT_FIXED_EVT_PARAM
+	 WHERE FIXED_EVENT_ID = #{fixed_evt_id}
+	 </select>
+	 
+	 <select id="returnColumnTags" parameterType="com.path.alert.vo.fixed.FixedTagCO" resultType="java.lang.String">
+	   SELECT COLUMN_NAME
+	   FROM ALRT_FIXED_EVT_TAGS
+	   WHERE FIXED_EVT_ID = #{fixed_evt_id}
+	   AND TABLE_NAME = #{tableName}
+	 </select>
+	 
+	 <select id="selectExpression" parameterType="java.math.BigDecimal" resultType="java.lang.String">
+	   SELECT ALRT_EVT_EXPR 
+	   FROM ALRT_EVT
+	   WHERE EVT_ID = #{evt_id}
+	 </select>
+	 
+	 <select id="selectFixedTags" resultMap="tagCO" parameterType="com.path.alert.vo.fixed.FixedTagCO">
+	 	SELECT DISTINCT TAG_NAME,COLUMN_TYPE
+	 	FROM ALRT_FIXED_EVT_TAGS
+	 	WHERE COLUMN_TYPE IS NOT NULL
+	 	AND TAG_NAME = #{tagName}
+	 	AND FIXED_EVT_ID = #{fixed_evt_id}
+	 </select>
+	 
+	 <resultMap type="com.path.alert.vo.fixed.FixedTagCO" id="tagCO">
+	 	<result column="TAG_NAME" 		property="tagName" />
+	    <result column="COLUMN_TYPE" 		property="columnType" />
+	 </resultMap>
+	 
+	
+	 
+</mapper>

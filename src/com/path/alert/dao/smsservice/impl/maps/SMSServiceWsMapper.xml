@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="SMSServiceWsMapper">
+	<select id="sendSMS" parameterType="com.path.alert.vo.smsservice.SendSMSReq" statementType="CALLABLE"> 
+			{CALL  P_INSERT_SMSMESSAGES(
+				#{as_mobile_phone,	mode=IN,	jdbcType=VARCHAR},
+				#{as_message_body,	mode=IN,	jdbcType=VARCHAR},
+				#{as_lang_code   ,	mode=IN,	jdbcType=VARCHAR},
+				#{an_processed   ,	mode=IN,	jdbcType=NUMERIC},
+				#{an_request_id,	mode=IN,	jdbcType=NUMERIC},
+				#{an_msg_id,		mode=IN,	jdbcType=NUMERIC},
+				#{code,				mode=OUT,	jdbcType=NUMERIC}
+				)
+			}			
+	</select>
+	
+		<update id="updateProcessedCodeForSms" parameterType="com.path.alert.vo.smsservice.SendSMSResp">
+				UPDATE SMS_MESSAGES 
+				SET PROCESSED = 1
+				WHERE CODE = #{code}
+		</update>
+	
+	
+	
+</mapper> 

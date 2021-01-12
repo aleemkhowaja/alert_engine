@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="ALRT_PUSH_NOTIFICATION" >
+  <resultMap id="BaseResultMap" type="com.path.alert.vo.omniservice.ALRT_PUSH_NOTIFICATIONVO" >
+    <id column="PUSH_NOTIFICATION_ID" property="PUSH_NOTIFICATION_ID" />
+    <result column="NOTIFICATION_DEVICE_TOKEN_ID" property="NOTIFICATION_DEVICE_TOKEN_ID" />
+    <result column="COMP_CODE" property="COMP_CODE" />
+    <result column="APP_ID" property="APP_ID" />
+    <result column="CHNL_ID" property="CHNL_ID" />
+    <result column="TITLE" property="TITLE" />
+    <result column="BODY" property="BODY" />
+    <result column="LANDING_PAGE" property="LANDING_PAGE" />
+    <result column="NOTIFICATION_DATA" property="NOTIFICATION_DATA" />
+    <result column="STATUS" property="STATUS" />
+    <result column="CHANNEL_USER_ID " property="CHANNEL_USER_ID " />
+    <result column="CHANNEL_USER_NAME " property="CHANNEL_USER_NAME " />
+    <result column="CREATED_DATE" property="CREATED_DATE" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    PUSH_NOTIFICATION_ID, NOTIFICATION_DEVICE_TOKEN_ID, COMP_CODE, APP_ID, CHNL_ID, TITLE, 
+    BODY, LANDING_PAGE, NOTIFICATION_DATA, STATUS, CHANNEL_USER_ID , CHANNEL_USER_NAME , CREATED_DATE
+  </sql>
+  <select id="selectALRT_PUSH_NOTIFICATION" resultMap="BaseResultMap" parameterType="com.path.alert.vo.omniservice.ALRT_PUSH_NOTIFICATIONVOKey" >
+    select 
+    <include refid="Base_Column_List" />
+    from ALRT_PUSH_NOTIFICATION
+    where PUSH_NOTIFICATION_ID = #{PUSH_NOTIFICATION_ID}
+  </select>
+  <delete id="deleteALRT_PUSH_NOTIFICATION" parameterType="com.path.alert.vo.omniservice.ALRT_PUSH_NOTIFICATIONVOKey" >
+    delete from ALRT_PUSH_NOTIFICATION
+    where PUSH_NOTIFICATION_ID = #{PUSH_NOTIFICATION_ID}
+  </delete>
+  <insert id="insertALRT_PUSH_NOTIFICATION" parameterType="com.path.alert.vo.omniservice.ALRT_PUSH_NOTIFICATIONVO" >
+    insert into ALRT_PUSH_NOTIFICATION
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+        PUSH_NOTIFICATION_ID,
+      <if test="NOTIFICATION_DEVICE_TOKEN_ID != null" >
+        NOTIFICATION_DEVICE_TOKEN_ID,
+      </if>
+      <if test="COMP_CODE != null" >
+        COMP_CODE,
+      </if>
+      <if test="APP_ID != null" >
+        APP_ID,
+      </if>
+      <if test="CHNL_ID != null" >
+        CHNL_ID,
+      </if>
+      <if test="TITLE != null" >
+        TITLE,
+      </if>
+      <if test="BODY != null" >
+        BODY,
+      </if>
+      <if test="LANDING_PAGE != null" >
+        LANDING_PAGE,
+      </if>
+      <if test="NOTIFICATION_DATA != null" >
+        NOTIFICATION_DATA,
+      </if>
+      <if test="STATUS != null" >
+        STATUS,
+      </if>
+      <if test="CHANNEL_USER_ID  != null" >
+        CHANNEL_USER_ID ,
+      </if>
+       <if test="CHANNEL_USER_NAME  != null" >
+        CHANNEL_USER_NAME ,
+      </if>
+      <if test="CREATED_DATE != null" >
+        CREATED_DATE,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+        ALRT_PUSH_NOTIFICATION_SEQ.nextval,
+      <if test="NOTIFICATION_DEVICE_TOKEN_ID != null" >
+        #{NOTIFICATION_DEVICE_TOKEN_ID},
+      </if>
+      <if test="COMP_CODE != null" >
+        #{COMP_CODE},
+      </if>
+      <if test="APP_ID != null" >
+        #{APP_ID},
+      </if>
+      <if test="CHNL_ID != null" >
+        #{CHNL_ID},
+      </if>
+      <if test="TITLE != null" >
+        #{TITLE},
+      </if>
+      <if test="BODY != null" >
+        #{BODY},
+      </if>
+      <if test="LANDING_PAGE != null" >
+        #{LANDING_PAGE},
+      </if>
+      <if test="NOTIFICATION_DATA != null" >
+        #{NOTIFICATION_DATA},
+      </if>
+      <if test="STATUS != null" >
+        #{STATUS},
+      </if>
+      <if test="CHANNEL_USER_ID  != null" >
+        #{CHANNEL_USER_ID },
+      </if>
+      <if test="CHANNEL_USER_NAME  != null" >
+        #{CHANNEL_USER_NAME },
+      </if>
+      <if test="CREATED_DATE != null" >
+        #{CREATED_DATE},
+      </if>
+    </trim>
+  </insert>
+  <sql id="sql_updateALRT_PUSH_NOTIFICATION" >
+    update ALRT_PUSH_NOTIFICATION
+    <set >
+      <if test="NOTIFICATION_DEVICE_TOKEN_ID != null" >
+        NOTIFICATION_DEVICE_TOKEN_ID = #{NOTIFICATION_DEVICE_TOKEN_ID},
+      </if>
+      <if test="COMP_CODE != null" >
+        COMP_CODE = #{COMP_CODE},
+      </if>
+      <if test="APP_ID != null" >
+        APP_ID = #{APP_ID},
+      </if>
+      <if test="CHNL_ID != null" >
+        CHNL_ID = #{CHNL_ID},
+      </if>
+      <if test="TITLE != null" >
+        TITLE = #{TITLE},
+      </if>
+      <if test="BODY != null" >
+        BODY = #{BODY},
+      </if>
+      <if test="LANDING_PAGE != null" >
+        LANDING_PAGE = #{LANDING_PAGE},
+      </if>
+      <if test="NOTIFICATION_DATA != null" >
+        NOTIFICATION_DATA = #{NOTIFICATION_DATA},
+      </if>
+      <if test="STATUS != null" >
+        STATUS = #{STATUS},
+      </if>
+      <if test="CHANNEL_USER_ID  != null" >
+        CHANNEL_USER_ID  = #{CHANNEL_USER_ID },
+      </if>
+       <if test="CHANNEL_USER_NAME  != null" >
+        CHANNEL_USER_NAME  = #{CHANNEL_USER_NAME },
+      </if>
+      <if test="CREATED_DATE != null" >
+        CREATED_DATE = #{CREATED_DATE},
+      </if>
+    </set>
+    where PUSH_NOTIFICATION_ID = #{PUSH_NOTIFICATION_ID}
+  </sql>
+  <update id="updateALRT_PUSH_NOTIFICATION" parameterType="com.path.alert.vo.omniservice.ALRT_PUSH_NOTIFICATIONVO" >
+    <include refid="sql_updateALRT_PUSH_NOTIFICATION" />
+  </update>
+</mapper>

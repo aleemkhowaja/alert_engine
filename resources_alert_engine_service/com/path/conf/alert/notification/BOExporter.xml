@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+    
+	<bean name="alertNotificationBOService" factory-bean="alertEngServicesExporter" factory-method="export" >
+		<constructor-arg name="serviceName" value="alertNotificationBOService" />
+		<constructor-arg name="service" ref="alertNotificationBO" />
+		<constructor-arg name="serviceInterface" value="com.path.alert.bo.notification.AlertNotificationBO" />		
+	</bean>
+	
+	<!-- <bean name="alertFixedBOService" factory-bean="alertEngServicesExporter" factory-method="export" >
+		<constructor-arg name="serviceName" value="alertFixedBOService" />
+		<constructor-arg name="service" ref="alertFixedBO" />
+		<constructor-arg name="serviceInterface" value="com.path.alert.bo.fixed.AlertFixedBO" />		
+	</bean> -->
+	
+	<bean name="alertConductorBOService" factory-bean="alertEngServicesExporter" factory-method="export" >
+		<constructor-arg name="serviceName" value="alertConductorBOService" />
+		<constructor-arg name="service" ref="alertConductorBO" />
+		<constructor-arg name="serviceInterface" value="com.path.alert.bo.conductor.AlertConductorBO" />		
+	</bean>
+	
+	<bean name="fixedEventBOService" factory-bean="alertEngServicesExporter" factory-method="export" >
+		<constructor-arg name="serviceName" value="fixedEventBOService" />
+		<constructor-arg name="service" ref="fixedEventBO" />
+		<constructor-arg name="serviceInterface" value="com.path.alert.bo.fixed.FixedEventBO" />		
+	</bean>
+	
+</beans>

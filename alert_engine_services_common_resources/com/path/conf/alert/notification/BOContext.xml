@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="alertNotificationBO" factory-bean="alertEngServiceBeanFactory"
+		factory-method="getInstance" parent="baseBO">
+		<constructor-arg name="implClassName"
+			value="com.path.alert.bo.notification.impl.AlertNotificationBOImpl" />
+		<constructor-arg name="interfaceName"
+			value="com.path.alert.bo.notification.AlertNotificationBO" />
+		<constructor-arg name="remoteServiceName" value="alertNotificationBOService" />
+		<property name="alertNotificationDAO" ref="alertNotificationDAO"></property>
+		<property name="commonReportingBO" ref="commonReportingBO"></property>
+		<property name="fixedEventBO" ref="fixedEventBO"></property>
+	</bean>
+	
+	<bean id="smsServiceWsBO" factory-bean="alertEngServiceBeanFactory"
+		factory-method="getInstance" parent="baseBO">
+		<constructor-arg name="implClassName"
+			value="com.path.alert.bo.smsservice.impl.SMSServiceWsBOImpl" />
+		<constructor-arg name="interfaceName"
+			value="com.path.alert.bo.smsservice.SMSServiceWsBO" />
+		<constructor-arg name="remoteServiceName" value="smsServiceWsBOService" />
+		<property name="sMSServiceWsDAO" ref="sMSServiceWsDAO"></property>
+	</bean>
+	
+	<bean id="omniServiceWsBO" factory-bean="alertEngServiceBeanFactory"
+		factory-method="getInstance" parent="baseBO">
+		<constructor-arg name="implClassName"
+			value="com.path.alert.bo.omniservice.impl.OmniServiceWsBOImpl" />
+		<constructor-arg name="interfaceName"
+			value="com.path.alert.bo.omniservice.OmniServiceWsBO" />
+		<constructor-arg name="remoteServiceName" value="omniServiceWsBOService" />
+	</bean>
+	
+	
+	<bean id="fixedEventBO" factory-bean="alertEngServiceBeanFactory"
+		factory-method="getInstance" parent="baseBO">
+		<constructor-arg name="implClassName"
+			value="com.path.alert.bo.fixed.impl.FixedEventBOImpl" />
+		<constructor-arg name="interfaceName"
+			value="com.path.alert.bo.fixed.FixedEventBO" />
+		<constructor-arg name="remoteServiceName" value="fixedEventBOService" />
+		<property name="fixedEventDAO" ref="fixedEventDAO"></property>
+		<property name="alertConductorBO" ref="alertConductorBO"></property>
+		<property name="commonLibBO" ref="commonLibBO"></property>
+	</bean>
+	
+	<bean id="alertConductorBO" factory-bean="alertEngServiceBeanFactory"
+		factory-method="getInstance" parent="baseBO">
+		<constructor-arg name="implClassName"
+			value="com.path.alert.bo.conductor.impl.AlertConductorBOImpl" />
+		<constructor-arg name="interfaceName"
+			value="com.path.alert.bo.conductor.AlertConductorBO" />
+		<constructor-arg name="remoteServiceName" value="alertConductorBOService" />
+		<property name="alertConductorDAO" ref="alertConductorDAO"></property>
+	</bean>
+	
+	<bean id="pushNotificationBO" factory-bean="alertEngServiceBeanFactory" factory-method="getInstance" parent="baseBO">
+		<constructor-arg name="implClassName" value="com.path.alert.bo.omniservice.impl.PushNotificationBOImpl" />
+		<constructor-arg name="interfaceName" value="com.path.alert.bo.omniservice.PushNotificationBO" />
+		<constructor-arg name="remoteServiceName" value="PushNotificationService" />
+		<property name="omniServiceWsBO" ref="omniServiceWsBO"></property>
+		<property name="pushNotificationDAO" ref="pushNotificationDAO"></property>
+	</bean>
+</beans>

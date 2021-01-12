@@ -1,0 +1,774 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="alertNotificationMapper">
+
+	<!-- alert engine -->
+	
+	<resultMap id="dynQryMap" type="com.path.alert.vo.notification.DynamicQueryColCO">
+		<result column="CIF_NO" 		property="cifNo" />
+		<result column="CHANNEL_END_USR_ID" 		property="channelEndUsrId" />
+		<result column="FACEBOOK_SOCIAL_ID" 	property="fbSocialId" />
+		<result column="TWITTER_SOCIAL_ID" 	property="twSocialId" />
+		<result column="USERNAME" 	property="imalUsrID" />
+		<result column="EMAIL_ID" 	property="emailId" />
+		<result column="MOBILE_PHONE" 	property="mobileId" />
+		<result column="ID" 	property="subscriberId" />
+	</resultMap>
+	
+	<select id="selectEmailFromSCR" resultType="java.lang.String" parameterType="com.path.alert.vo.notification.EmailSCRDynQryCO">
+		
+		SELECT ${tableName}.${columnSelect}
+		FROM ${tableName}
+		WHERE ${tableName}.${cifCond} = #{msgVO.CIF_NO}
+			AND ${tableName}.COMP_CODE = #{compCode}
+			AND ${tableName}.${columnPrimary} = 
+				(SELECT MAX(${tableName}.${columnPrimary}) 
+				FROM ${tableName}
+				WHERE ${tableName}.${cifCond} = #{msgVO.CIF_NO})
+			
+	</select>
+	
+	<select id="selectEmailMobileByCif" resultType="java.lang.String" parameterType="com.path.alert.vo.notification.EmailSCRDynQryCO">
+		SELECT C.${columnSelect}
+	    FROM CIF_ADDRESS C
+	    WHERE C.CIF_NO = #{msgVO.CIF_NO}
+	    AND C.COMP_CODE = #{compCode}
+	    AND C.LINE_NO = 0
+	</select>
+	
+	
+	<select id="selectEmailFromSCRByAcc" resultType="java.lang.String" parameterType="com.path.alert.vo.notification.EmailSCRDynQryCO">
+		
+		SELECT ${tableName}.${columnSelect}
+		FROM ${tableName}
+		WHERE ${tableName}.ACC_BR = #{msgVO.BRANCH_CODE}
+			AND ${tableName}.ACC_CY = #{msgVO.CURRENCY_CODE}
+			AND ${tableName}.ACC_GL = #{msgVO.GL_CODE}
+			AND ${tableName}.ACC_CIF = #{msgVO.CIF_NO}
+			AND ${tableName}.ACC_SL = #{msgVO.SL_NO}
+			AND ${tableName}.${columnPrimary} = 
+				(SELECT MAX(${tableName}.${columnPrimary}) 
+				FROM ${tableName}
+				WHERE ${tableName}.ACC_BR = #{msgVO.BRANCH_CODE}
+					AND ${tableName}.ACC_CY = #{msgVO.CURRENCY_CODE}
+					AND ${tableName}.ACC_GL = #{msgVO.GL_CODE}
+					AND ${tableName}.ACC_CIF = #{msgVO.CIF_NO}
+					AND ${tableName}.ACC_SL = #{msgVO.SL_NO})
+			
+	</select>
+	
+	<select id="selectSubscriberId" resultMap="subscriberInfo" parameterType="com.path.alert.vo.notification.QueryCO">
+		<choose>
+		<when test="isSybase == 1">
+		SELECT TOP 1 ALRT_SUB.ID,
+			ALRT_SUB.LANG,
+			ALRT_SUB_LANG.BRIEF_NAME,
+			ALRT_SUB_LANG.MIDDLE_NAME,
+			ALRT_SUB_LANG.LONG_NAME,
+			ALRT_SUB_LANG.ADDRESS,
+			ALRT_SUB.STATUS,
+			ALRT_SUB.EMAIL_ID,
+			ALRT_SUB.MOBILE_PHONE,
+			ALRT_SUB.DEFAULT_BRIEF_NAME,
+			ALRT_SUB.DEFAULT_MIDDLE_NAME,
+			ALRT_SUB.DEFAULT_LONG_NAME,
+			ALRT_SUB.DEFAULT_ADDRESS,
+			ALRT_SUB.CIF_NO,
+			ALRT_SUB.CHANNEL_END_USR_ID,
+			ALRT_SUB.USR_ID
+			
+	  FROM ALRT_SUB LEFT JOIN ALRT_SUB_LANG
+	  ON ALRT_SUB_LANG.ALRT_SUB_ID = ALRT_SUB.ID
+			AND ALRT_SUB_LANG.LANG_CODE = ALRT_SUB.LANG
+		WHERE ${columnName}  
+			${query}
+			AND ALRT_SUB.STATUS = 'P'
+			<choose>
+			<when test  = "compCode != null">
+				AND ALRT_SUB.COMP_CODE = #{compCode}
+			</when>
+			</choose>
+			</when>
+			<otherwise>
+			SELECT  ALRT_SUB.ID,
+			ALRT_SUB.LANG,
+			ALRT_SUB_LANG.BRIEF_NAME,
+			ALRT_SUB_LANG.MIDDLE_NAME,
+			ALRT_SUB_LANG.LONG_NAME,
+			ALRT_SUB_LANG.ADDRESS,
+			ALRT_SUB.STATUS,
+			ALRT_SUB.EMAIL_ID,
+			ALRT_SUB.MOBILE_PHONE,
+			ALRT_SUB.DEFAULT_BRIEF_NAME,
+			ALRT_SUB.DEFAULT_MIDDLE_NAME,
+			ALRT_SUB.DEFAULT_LONG_NAME,
+			ALRT_SUB.DEFAULT_ADDRESS,
+			ALRT_SUB.CIF_NO,
+			ALRT_SUB.CHANNEL_END_USR_ID,
+			ALRT_SUB.USR_ID
+	  FROM ALRT_SUB LEFT JOIN ALRT_SUB_LANG
+	  ON ALRT_SUB_LANG.ALRT_SUB_ID = ALRT_SUB.ID
+			AND ALRT_SUB_LANG.LANG_CODE = ALRT_SUB.LANG
+		WHERE ${columnName}  
+			${query}
+			AND ALRT_SUB.STATUS = 'P'
+			AND ROWNUM =1 
+			<choose>
+			<when test  = "compCode != null">
+				AND ALRT_SUB.COMP_CODE = #{compCode}
+			</when>
+			</choose>
+			</otherwise>
+			</choose>
+	</select>
+	
+	<select id="returnSubscriberIdByAccount" resultMap="subscriberInfo" parameterType="com.path.alert.vo.fixed.AccountQueue">
+		<choose>
+		<when test="isSybase == 1">
+		SELECT TOP 1 ALRT_SUB.ID,
+			ALRT_SUB.LANG,
+			ALRT_SUB_LANG.BRIEF_NAME,
+			ALRT_SUB_LANG.MIDDLE_NAME,
+			ALRT_SUB_LANG.LONG_NAME,
+			ALRT_SUB_LANG.ADDRESS,
+			ALRT_SUB.STATUS,
+			ALRT_SUB.EMAIL_ID,
+			ALRT_SUB.MOBILE_PHONE,
+			ALRT_SUB.DEFAULT_BRIEF_NAME,
+			ALRT_SUB.DEFAULT_MIDDLE_NAME,
+			ALRT_SUB.DEFAULT_LONG_NAME,
+			ALRT_SUB.DEFAULT_ADDRESS
+	  FROM ALRT_SUB LEFT JOIN ALRT_SUB_LANG
+	  ON ALRT_SUB_LANG.ALRT_SUB_ID = ALRT_SUB.ID
+			AND ALRT_SUB_LANG.LANG_CODE = ALRT_SUB.LANG
+		WHERE ALRT_SUB.STATUS = 'P'
+		    <choose>
+			<when test="account.cifNo != null">
+				AND ALRT_SUB.CIF_NO = #{account.cifNo}
+			</when>
+			</choose>
+			<choose>
+			<when test="account.cifNo == null">
+				AND ALRT_SUB.CIF_NO = (SELECT  CIF_SUB_NO 
+		  			FROM AMF WHERE 
+		  			<choose>
+		  			<when test="account.additionalRef !=null">
+				       AMF.ADDITIONAL_REFERENCE = #{account.additionalRef}
+				     </when>
+				     </choose>
+				     <choose>
+				     <when test="account.ibanAccNo != null">
+				       AMF.IBAN_ACC_NO = #{account.ibanAccNo}
+				     </when>
+				     </choose>
+			</when>	
+			
+			</choose>
+			<choose>
+			<when test  = "compCode != null">
+			AND ALRT_SUB.COMP_CODE = #{compCode}
+			</when>
+			</choose>
+			AND NOT EXISTS(
+			    SELECT 1 FROM ALRT_SUB_ACC_EXCL
+			    WHERE EVT_PKG_ID = #{eventID}
+			    AND REL_TYPE = 'SE'
+			    <choose>
+		  			<when test="account.additionalRef !=null">
+				      AND ALRT_SUB_ACC_EXCL.ADDITIONAL_REFERENCE = #{account.additionalRef}
+				     </when>
+				     </choose>
+				     <choose>
+				     <when test="account.ibanAccNo != null">
+				      AND ALRT_SUB_ACC_EXCL.IBAN_ACC_NO = #{account.ibanAccNo}
+				     </when>
+				     <otherwise>
+				     AND ALRT_SUB_ACC_EXCL.BRANCH_CODE = #{account.branch}
+				     AND ALRT_SUB_ACC_EXCL.CURRENCY_CODE = #{account.currency}
+				     AND ALRT_SUB_ACC_EXCL.GL_CODE = #{account.accGl}
+				     AND ALRT_SUB_ACC_EXCL.CIF_SUB_NO = #{account.cifNo}
+				     AND ALRT_SUB_ACC_EXCL.SL_NO = #{account.serialNo}
+				     <choose>
+				     <when test  = "compCode != null">
+				     AND ALRT_SUB_ACC_EXCL.COMP_CODE = #{compCode}
+				     </when>
+				     </choose>
+				     </otherwise>
+				     </choose>)
+	</when>
+	
+	<otherwise>
+	  SELECT ALRT_SUB.ID,
+			ALRT_SUB.LANG,
+			ALRT_SUB_LANG.BRIEF_NAME,
+			ALRT_SUB_LANG.MIDDLE_NAME,
+			ALRT_SUB_LANG.LONG_NAME,
+			ALRT_SUB_LANG.ADDRESS,
+			ALRT_SUB.STATUS,
+			ALRT_SUB.EMAIL_ID,
+			ALRT_SUB.MOBILE_PHONE,
+			ALRT_SUB.DEFAULT_BRIEF_NAME,
+			ALRT_SUB.DEFAULT_MIDDLE_NAME,
+			ALRT_SUB.DEFAULT_LONG_NAME,
+			ALRT_SUB.DEFAULT_ADDRESS
+	  FROM ALRT_SUB LEFT JOIN ALRT_SUB_LANG
+	  ON ALRT_SUB_LANG.ALRT_SUB_ID = ALRT_SUB.ID
+			AND ALRT_SUB_LANG.LANG_CODE = ALRT_SUB.LANG
+		WHERE ALRT_SUB.STATUS = 'P'
+		   AND ROWNUM = 1
+		    <choose>
+			<when test="account.cifNo != null">
+				AND ALRT_SUB.CIF_NO = #{account.cifNo}
+			</when>
+			</choose>
+			<choose>
+			<when test="account.cifNo == null">
+				AND ALRT_SUB.CIF_NO = (SELECT  CIF_SUB_NO 
+		  			FROM AMF WHERE 
+		  			<choose>
+		  			<when test="account.additionalRef !=null">
+				       AMF.ADDITIONAL_REFERENCE = #{account.additionalRef}
+				     </when>
+				     </choose>
+				     <choose>
+				     <when test="account.ibanAccNo != null">
+				       AMF.IBAN_ACC_NO = #{account.ibanAccNo}
+				     </when>
+				     </choose>
+			</when>	
+			</choose>
+			<choose>
+			<when test  = "compCode != null">
+			AND ALRT_SUB.COMP_CODE = #{compCode}
+			</when>
+			</choose>
+			AND NOT EXISTS(
+			    SELECT 1 FROM ALRT_SUB_ACC_EXCL
+			    WHERE 
+			    <choose>
+		  			<when test="account.additionalRef !=null">
+				       ALRT_SUB_ACC_EXCL.ADDITIONAL_REFERENCE = #{account.additionalRef}
+				     </when>
+				     </choose>
+				     <choose>
+				     <when test="account.ibanAccNo != null">
+				       ALRT_SUB_ACC_EXCL.IBAN_ACC_NO = #{account.ibanAccNo}
+				     </when>
+				     <otherwise>
+				     ALRT_SUB_ACC_EXCL.BRANCH_CODE = #{account.branch}
+				     AND ALRT_SUB_ACC_EXCL.CURRENCY_CODE = #{account.currency}
+				     AND ALRT_SUB_ACC_EXCL.GL_CODE = #{account.accGl}
+				     AND ALRT_SUB_ACC_EXCL.CIF_SUB_NO = #{account.cifNo}
+				     AND ALRT_SUB_ACC_EXCL.SL_NO = #{account.serialNo}
+				     <choose>
+					 <when test  = "compCode != null">
+				     AND ALRT_SUB_ACC_EXCL.COMP_CODE = #{compCode}
+				     </when>
+				     </choose>
+				     </otherwise>
+				     </choose>)
+	</otherwise>
+	
+	
+	</choose> 
+	</select>
+	
+	
+	<select id="selectSubscriberIdByCIF" resultType="BigDecimal" parameterType="BigDecimal">
+		
+		SELECT ID
+		FROM ALRT_SUB 
+		WHERE CIF_NO = #{cifNo}
+			
+	</select>
+	
+	<select id="selectSubscriberIdByChannelUserID" resultType="BigDecimal" parameterType="String">
+		
+		SELECT ID
+		FROM ALRT_SUB 
+		WHERE CHANNEL_END_USR_ID = #{channelUserID}
+			
+	</select>
+	
+	<resultMap id="subscriptionInfo" type="com.path.alert.vo.notification.SubscriptionCO">
+	    <result column="ID" 		property="subscriptionID" />
+		<result column="SRC_CONTACT_TYPE" 		property="sourceOfContact" />
+	</resultMap>
+	
+	<select id="selectSubscription"  resultMap="subscriptionInfo" parameterType="com.path.alert.vo.fixed.AccountQueue">
+		SELECT  
+			<choose>
+				 <when test="isOracle == 0">
+				   TOP 1
+				 </when>
+			 </choose>
+		 TBLEVT.ID, TBLEVT.SRC_CONTACT_TYPE 
+		 FROM (	 
+				 SELECT			
+				 ALRT_SUB_EVT.ID ID, ALRT_SUB_EVT.SRC_CONTACT_TYPE SRC_CONTACT_TYPE
+				 FROM ALRT_SUB_EVT
+				 WHERE ALRT_SUB_EVT.EVT_ID = #{eventID}
+				 AND ALRT_SUB_EVT.STATUS = 'P'
+				 AND ALRT_SUB_EVT.SUB_ID = #{subscriberID}
+			 
+			 UNION 	 
+			 
+				SELECT ALRT_SUB_PKG.LINE_NO ID, E.SOURCE_OF_CONTACT  SRC_CONTACT_TYPE
+         		FROM ALRT_SUB_PKG , ALRT_EVT_PKG, ALRT_EVT E
+         		WHERE ALRT_EVT_PKG.PKG_ID = ALRT_SUB_PKG.PKG_ID
+         		AND ALRT_EVT_PKG.EVT_ID = E.EVT_ID
+         		AND ALRT_SUB_PKG.STATUS = 'P'
+				AND ALRT_EVT_PKG.EVT_ID = #{eventID}
+				AND ALRT_SUB_PKG.SUB_ID = #{subscriberID}
+				 
+			UNION 		 
+				 
+	        SELECT ALRT_SUB_GRP.LINE_NO ID, E.SOURCE_OF_CONTACT SRC_CONTACT_TYPE
+	        FROM ALRT_GRP_PKG, ALRT_EVT_PKG, ALRT_SUB_GRP, ALRT_EVT E
+	        WHERE ALRT_GRP_PKG.LINE_NO = ALRT_GRP_PKG.LINE_NO
+	           AND ALRT_GRP_PKG.GRP_ID = ALRT_SUB_GRP.GRP_ID
+	           AND ALRT_GRP_PKG.PKG_ID = ALRT_EVT_PKG.PKG_ID
+	           AND ALRT_EVT_PKG.EVT_ID = E.EVT_ID
+	         	 AND ALRT_GRP_PKG.STATUS = 'P'
+				 AND ALRT_EVT_PKG.EVT_ID = #{eventID}
+				 AND ALRT_SUB_GRP.SUB_ID =  #{subscriberID}
+				 
+		   UNION
+		   
+		    SELECT ALRT_GRP.GRP_ID ID, E.SOURCE_OF_CONTACT SRC_CONTACT_TYPE
+			   FROM ALRT_GRP_PKG, ALRT_EVT_PKG, ALRT_GRP, ALRT_SUB, ALRT_EVT E
+			  WHERE ALRT_GRP_PKG.LINE_NO = ALRT_GRP_PKG.LINE_NO
+			    AND ALRT_GRP_PKG.GRP_ID = ALRT_GRP.GRP_ID
+			    AND ALRT_GRP_PKG.PKG_ID = ALRT_EVT_PKG.PKG_ID
+			    AND ALRT_GRP_PKG.GRP_ID = ALRT_GRP.GRP_ID
+			    AND ALRT_SUB.ID = ALRT_SUB.ID
+			    AND ALRT_EVT_PKG.EVT_ID = E.EVT_ID
+			    AND ALRT_GRP_PKG.STATUS = 'P'
+			    AND ALRT_EVT_PKG.EVT_ID =  #{eventID}
+			    AND ALRT_SUB.ID = #{subscriberID}
+			    AND ALRT_GRP.INCLUDE_ALL_SUB_YN = 'Y'
+		UNION
+			SELECT ALRT_EVT_GRP.LINE_NO ID, ALRT_EVT.SOURCE_OF_CONTACT SRC_CONTACT_TYPE
+			   FROM 
+			        ALRT_EVT_GRP, 
+			        ALRT_GRP, 
+			        ALRT_SUB, 
+			        ALRT_EVT
+			 
+			  WHERE ALRT_EVT_GRP.GRP_ID = ALRT_GRP.GRP_ID
+			    AND ALRT_EVT_GRP.EVT_ID = ALRT_EVT.EVT_ID
+			    AND ALRT_EVT_GRP.STATUS = 'P'
+			    AND ALRT_SUB.STATUS = 'P'
+			    AND ALRT_GRP.STATUS ='P'
+			    AND ALRT_EVT_GRP.EVT_ID =  #{eventID}
+			    AND ALRT_SUB.ID =  #{subscriberID}
+			    AND ALRT_GRP.INCLUDE_ALL_SUB_YN = 'Y'
+			    
+	UNION 
+			  SELECT ALRT_SUB_GRP.LINE_NO ID, ALRT_EVT.SOURCE_OF_CONTACT SRC_CONTACT_TYPE
+		         FROM 
+		              ALRT_EVT_GRP, 
+		              ALRT_GRP, 
+		              ALRT_SUB, 
+		              ALRT_EVT,
+		              ALRT_SUB_GRP
+		       
+		        WHERE ALRT_EVT_GRP.GRP_ID = ALRT_GRP.GRP_ID
+		          AND ALRT_EVT_GRP.EVT_ID = ALRT_EVT.EVT_ID
+		          AND ALRT_SUB_GRP.GRP_ID = ALRT_GRP.GRP_ID
+		          AND ALRT_SUB_GRP.SUB_ID = ALRT_SUB.ID
+		          AND ALRT_EVT_GRP.STATUS = 'P'
+		          AND ALRT_SUB.STATUS = 'P'
+		          AND ALRT_GRP.STATUS ='P'
+		          AND ALRT_EVT_GRP.EVT_ID =  #{eventID}
+			      AND ALRT_SUB.ID =  #{subscriberID}			    
+		) TBLEVT
+		 <choose>
+			 <when test="isOracle == 1">
+			   WHERE ROWNUM = 1
+			 </when>
+		 </choose>
+		
+	 </select>
+	
+	<select id="returnSkipSubs" resultType="java.lang.String" parameterType="java.math.BigDecimal">
+	  SELECT ALRT_EVT.SKIP_SUBSCRIPTION_YN
+	  FROM ALRT_EVT
+	  WHERE ALRT_EVT.EVT_ID = #{eventID}
+	</select>
+	
+	<select id="returnPredefinedTags" resultMap="predefinedTags" parameterType="java.lang.String">
+		SELECT TAG_NAME,
+		COLUMN_NAME
+		FROM ALRT_TAGS_DEF
+		WHERE IS_CUSTOM_YN = 'N'
+		AND TAG_NAME = #{tagName}
+	</select>
+	
+	
+	
+	<select id="selectBatchId" resultType="java.lang.String" parameterType="java.lang.String">
+		SELECT ALRT_EVT.REPORT_ID
+		FROM ALRT_EVT
+		WHERE ALRT_EVT.DESC_ENG = #{eventName}	
+	</select>
+	
+	<select id="selectEvtDetails" resultMap="evtMap" parameterType="com.path.alert.vo.notification.EvtCO">
+		SELECT ALRT_EVT.EVT_TYPE,
+		ALRT_EVT.DESC_ENG,
+		ALRT_EVT.DESC_ARAB,
+		ALRT_EVT.REPORT_ID,
+		ALRT_EVT.EVENT_BATCH_TYPE,
+		ALRT_EVT.BATCH_TYPE_QUERY_COL,
+		ALRT_EVT.COMP_CODE,
+		ALRT_EVT.FIXED_EVENT_ID,
+		ALRT_EVT.STATUS,
+		ALRT_EVT.ALRT_EVT_EXPR,
+		ALRT_EVT.SOURCE_OF_CONTACT,
+		ALRT_EVT.SKIP_SUBSCRIPTION_YN
+		FROM ALRT_EVT
+		WHERE ALRT_EVT.EVT_ID = #{eventID}
+		<choose>
+		<when test  = "compCode != null">
+		AND ALRT_EVT.COMP_CODE = #{compCode}	
+		</when>
+		</choose>
+		<!-- AND ALRT_EVT.STATUS = 'P' -->
+	</select>
+	
+	<select id="selectAttachement" resultType="java.math.BigDecimal" parameterType="com.path.alert.vo.notification.ALRT_EVT_REPORT_ATTACHCO">
+		SELECT 
+		ALRT_EVT_REPORT_ATTACH.REPORT_ID
+		FROM ALRT_EVT_REPORT_ATTACH
+		WHERE ALRT_EVT_REPORT_ATTACH.COMMUNICATION_TYPE = #{COMMUNICATION_TYPE}	
+		AND ALRT_EVT_REPORT_ATTACH.EVT_ID = #{EVT_ID}	
+	 
+	</select>
+	
+	<resultMap id="evtMap" type="com.path.alert.vo.notification.EvtCO">
+		<result column="EVT_TYPE" 		property="evtType" />
+		<result column="DESC_ENG" 		property="descEng" />
+		<result column="DESC_ARAB" 		property="descArab" />
+		<result column="REPORT_ID" 	property="batchId" />
+		<result column="EVENT_BATCH_TYPE" 	property="evtBatchType" />
+		<result column="BATCH_TYPE_QUERY_COL" 	property="batchTypeQryCol" />
+		<result column="COMP_CODE" 	property="compCode" />
+		<result column="FIXED_EVENT_ID" 	property="fixedEventID" />
+		<result column="STATUS" 	property="status" />
+		<result column="ALRT_EVT_EXPR" 	property="eventExp" />
+		<result column="SOURCE_OF_CONTACT" 	property="sourceOfContact"/>
+		<result column="SKIP_SUBSCRIPTION_YN" 	property="skipSubscription"/>
+		
+		
+	</resultMap>
+	
+	<select id="selectEventNameByID" resultType="java.lang.String" parameterType="java.math.BigDecimal">
+		SELECT ALRT_EVT.DESC_ENG
+		FROM ALRT_EVT
+		WHERE ALRT_EVT.EVT_ID = #{evt_id}	
+	</select>
+	
+	<resultMap id="predefinedTags" type="com.path.alert.vo.notification.AlertPredefinedTagsCO">
+	    <result column="TAG_NAME" 		property="tagName" />
+		<result column="COLUMN_NAME" 		property="columnName" />
+	</resultMap>
+	
+	
+		
+
+	<select id="returnEventDetails"  resultMap="eventInfo" parameterType="com.path.alert.vo.notification.AlertEvtCO" >
+	
+	  <choose>
+	  <when test='"S".equals(evt_type)'>
+	    SELECT 
+		ALRT_EVT_OL_DATA_TRANS.MESSAGE_BODY,
+		ALRT_EVT_OL_DATA_TRANS.MESSAGE_SUBJECT,
+		ALRT_EVT_COMM_MODE.DEFAULT_MESSAGE_BODY,
+		ALRT_EVT_COMM_MODE.DEFAULT_MESSAGE_SUBJECT,
+		ALRT_EVT_COMM_MODE.REPORT_ID,
+		ALRT_EVT_COMM_MODE.QUERY_ID,
+		ALRT_EVT_COMM_MODE.TEMPLATE_TYPE,
+		ALRT_EVT_COMM_MODE.COMMUNICATION_TYPE,
+		ALRT_EVT_OL_DATA_TRANS.LANG_CODE
+		FROM ALRT_EVT_COMM_MODE        
+        LEFT JOIN ALRT_EVT_OL_DATA_TRANS
+        ON ALRT_EVT_OL_DATA_TRANS.EVT_ID = #{evtID}
+		  AND ALRT_EVT_OL_DATA_TRANS.LANG_CODE = #{langCode}
+		   AND ALRT_EVT_OL_DATA_TRANS.COMMUNICATION_TYPE = ALRT_EVT_COMM_MODE.COMMUNICATION_TYPE
+		WHERE  
+		  ALRT_EVT_COMM_MODE.EVT_ID = #{evtID}
+		  AND ALRT_EVT_COMM_MODE.ACTIVATED_YN = 'Y'
+		  <choose>
+	      		<when test = "templateType != null"> 
+	      		AND ALRT_EVT_COMM_MODE.TEMPLATE_TYPE = #{templateType}
+	      		</when>
+	      </choose>
+	  </when>
+	  <otherwise>
+
+		SELECT 
+		ALRT_EVT_OL_DATA_TRANS.MESSAGE_BODY,
+		ALRT_EVT_OL_DATA_TRANS.MESSAGE_SUBJECT,
+		ALRT_EVT_COMM_MODE.DEFAULT_MESSAGE_BODY,
+		ALRT_EVT_COMM_MODE.DEFAULT_MESSAGE_SUBJECT,
+		ALRT_EVT_COMM_MODE.REPORT_ID,
+		ALRT_EVT_COMM_MODE.QUERY_ID,
+		ALRT_EVT_COMM_MODE.TEMPLATE_TYPE,
+		ALRT_EVT_COMM_MODE.COMMUNICATION_TYPE,
+		ALRT_EVT_OL_DATA_TRANS.LANG_CODE
+		FROM ALRT_EVT_COMM_MODE        
+        LEFT JOIN ALRT_EVT_OL_DATA_TRANS
+        ON ALRT_EVT_OL_DATA_TRANS.EVT_ID = #{evtID}
+		  AND ALRT_EVT_OL_DATA_TRANS.LANG_CODE = #{langCode}
+		   AND ALRT_EVT_OL_DATA_TRANS.COMMUNICATION_TYPE = ALRT_EVT_COMM_MODE.COMMUNICATION_TYPE
+		WHERE  
+		  ALRT_EVT_COMM_MODE.EVT_ID = #{evtID}
+		  AND ALRT_EVT_COMM_MODE.ACTIVATED_YN = 'Y'
+		  <choose>
+	      		<when test = "templateType != null"> 
+	      		AND ALRT_EVT_COMM_MODE.TEMPLATE_TYPE = #{templateType}
+	      		</when>
+	      </choose>
+
+		 
+	      <if test="subscriptionID != null and subscriberID > 0" >
+	      		AND #{subscriptionID} NOT IN (SELECT ALRT_SUB_EVT_COMM_MODE_EXCL.SUBSCRIPTION_ID 
+	         	FROM ALRT_SUB_EVT_COMM_MODE_EXCL
+	         	WHERE ALRT_SUB_EVT_COMM_MODE_EXCL.COMMUNICATION_TYPE = ALRT_EVT_COMM_MODE.COMMUNICATION_TYPE)
+	      </if>
+	</otherwise>	  
+	</choose>
+		  
+	
+	</select>
+	
+	<resultMap id="eventInfo" type="com.path.alert.vo.notification.AlertEvtCO">
+		<result column="EVT_ID" 		property="evtID" />
+		<result column="EVT_TYPE" 		property="evt_type" />
+		<result column="STATUS" 	property="status" />
+		<result column="SRC_CONTACT_TYPE" 		property="sourceOfContact" />
+		<result column="FIXED_EVENT_ID" 		property="fixedEvtID" />
+		<result column="MESSAGE_BODY" 		property="messageBody" />
+		<result column="MESSAGE_SUBJECT" 		property="messageSubject" />
+		<result column="DEFAULT_MESSAGE_BODY" 		property="defaultMessageBody" />
+		<result column="DEFAULT_MESSAGE_SUBJECT" 		property="defaultMessageSubject" />
+		<result column="REPORT_ID" 		property="reportId" />
+		<result column="QUERY_ID" 		property="queryId" />
+		<result column="TEMPLATE_TYPE" 		property="templateType" />
+		<result column="LANG_CODE" 		property="langCode" />
+		<result column="COMMUNICATION_TYPE" 		property="communicationType" />
+	</resultMap>
+	
+	<resultMap id="subscriberInfo" type="com.path.alert.vo.notification.SubscriberCO">
+		<result column="ID" 					property="subScriberId" />
+		<result column="BRIEF_NAME" 			property="briefName" />
+		<result column="MIDDLE_NAME" 			property="middleName" />
+		<result column="LONG_NAME" 				property="longName" />
+		<result column="LANG" 					property="lang" /> 
+		<result column="ADDRESS" 				property="address" /> 
+		<result column="STATUS" 				property="status" /> 
+		<result column="EMAIL_ID" 				property="emails" /> 
+		<result column="MOBILE_PHONE" 			property="mobiles" /> 
+		<result column="DEFAULT_BRIEF_NAME" 	property="defaultBriefName" /> 
+		<result column="DEFAULT_MIDDLE_NAME" 	property="defaultMiddleName" /> 
+		<result column="DEFAULT_LONG_NAME" 		property="defaultLongName" /> 
+		<result column="DEFAULT_ADDRESS" 		property="defaultAddress" /> 
+		<result column="CIF_NO" 				property="cifNo" /> 
+		<result column="CHANNEL_END_USR_ID" 	property="channelEndUser" />
+		<result column="USR_ID" 				property="userId" />
+	</resultMap>
+	
+	<select id="selectEventIDByName" parameterType="com.path.alert.vo.notification.AlertNotificationCO"
+	   resultType="java.math.BigDecimal">
+	   SELECT 
+	   <choose><when test="isOracle == 0">
+	   TOP 1
+	   </when>
+	   </choose>
+	   FROM ALRT_EVT 
+	   WHERE ALRT_EVT.STATUS = 'P'
+	   	
+	   <choose>
+	   		<when test  = "eventName != null">
+	    		AND ALRT_EVT.DESC_ENG = #{eventName}
+	   		</when>
+	   </choose>
+	   
+	   <choose>
+	   		<when test  = "eventId != null">
+	    		AND ALRT_EVT.EVT_ID = #{eventId}
+	   		</when>
+	   </choose>
+	   		   
+	   <choose>
+	   		<when test  = "compCode != null">
+	   			AND ALRT_EVT.COMP_CODE = #{compCode}
+	   		</when>
+	   </choose>
+	   
+	   <choose>
+	   <when test="isOracle == 1">
+	   AND ROWNUM = 1
+	   </when>
+	   </choose>  
+	 </select>
+	
+	<select id="returnSubscriberDetails"  resultMap="subscriberInfo" parameterType="com.path.alert.vo.notification.SubscriberCO">
+		
+		SELECT ALRT_SUB.ID,
+			ALRT_SUB.LANG,
+			ALRT_SUB_LANG.BRIEF_NAME,
+			ALRT_SUB_LANG.MIDDLE_NAME,
+			ALRT_SUB_LANG.LONG_NAME,
+			ALRT_SUB_LANG.ADDRESS,
+			ALRT_SUB.STATUS,
+			ALRT_SUB.EMAIL_ID,
+			ALRT_SUB.MOBILE_PHONE,
+			ALRT_SUB.DEFAULT_BRIEF_NAME,
+			ALRT_SUB.DEFAULT_MIDDLE_NAME,
+			ALRT_SUB.DEFAULT_LONG_NAME,
+			ALRT_SUB.DEFAULT_ADDRESS,
+			ALRT_SUB.CIF_NO,
+			ALRT_SUB.CHANNEL_END_USR_ID
+	  FROM ALRT_SUB LEFT JOIN ALRT_SUB_LANG
+	  ON ALRT_SUB_LANG.ALRT_SUB_ID = ALRT_SUB.ID
+			AND ALRT_SUB_LANG.LANG_CODE = ALRT_SUB.LANG
+	  WHERE 
+	  ID = #{subScriberId}
+	      
+	</select>
+	
+	<select id="returnAlrtArgsQuery" resultMap="argsQuery" parameterType="com.path.alert.vo.notification.ALRT_EVT_COMM_MODE_ARG_MAPVO">
+		SELECT ALRT_EVT_COMM_MODE_ARG_MAP.ARG_NAME,
+			   ALRT_EVT_COMM_MODE_ARG_MAP.MAPPING_TAG_NAME,
+			   ALRT_EVT_COMM_MODE_ARG_MAP.MAPPING_VALUE
+		FROM ALRT_EVT_COMM_MODE_ARG_MAP
+		WHERE ALRT_EVT_COMM_MODE_ARG_MAP.COMMUNICATION_TYPE = #{COMMUNICATION_TYPE}
+		  AND ALRT_EVT_COMM_MODE_ARG_MAP.EVT_ID = #{EVT_ID} 
+	
+	</select>
+	
+	
+	
+	<select id="returnAlrtArgsQueryEvt" resultMap="argsQueryEvt" parameterType="com.path.alert.vo.notification.ALRT_EVT_BATCH_ARG_MAPCO">
+		SELECT ALRT_EVT_BATCH_ARG_MAP.ARG_NAME,
+			   ALRT_EVT_BATCH_ARG_MAP.MAPPING_TAG_NAME,
+			   ALRT_EVT_BATCH_ARG_MAP.MAPPING_VALUE
+		FROM ALRT_EVT_BATCH_ARG_MAP
+		WHERE ALRT_EVT_BATCH_ARG_MAP.EVT_ID = #{eventID}
+	</select>
+	
+	<select id="returnAlrtArgsReport" resultMap="argsQuery" parameterType="com.path.alert.vo.notification.ALRT_EVT_COMM_MODE_ARG_MAPVO">
+		SELECT ALRT_EVT_COMM_MODE_ARG_MAP.ARG_NAME,
+			   ALRT_EVT_COMM_MODE_ARG_MAP.MAPPING_TAG_NAME,
+			   ALRT_EVT_COMM_MODE_ARG_MAP.MAPPING_VALUE
+		FROM ALRT_EVT_COMM_MODE_ARG_MAP
+		WHERE ALRT_EVT_COMM_MODE_ARG_MAP.COMMUNICATION_TYPE = #{COMMUNICATION_TYPE}
+		  AND ALRT_EVT_COMM_MODE_ARG_MAP.EVT_ID = #{EVT_ID} 
+		  AND ALRT_EVT_COMM_MODE_ARG_MAP.ARG_NAME = #{ARG_NAME} 
+		  <choose>
+		  	<when test="QUERY_REPORT_ID != 0">
+		  		AND ALRT_EVT_COMM_MODE_ARG_MAP.QUERY_REPORT_ID = #{QUERY_REPORT_ID}	
+		  	</when> 
+		  	</choose>
+		  	
+		  	<choose>
+		  	<when test="ATTACH_REPORT_ID != 0">
+		  		AND ALRT_EVT_COMM_MODE_ARG_MAP.ATTACH_REPORT_ID = #{ATTACH_REPORT_ID}	
+		  	</when> 
+		  	</choose>
+	
+	</select>
+	
+	
+	<resultMap id="argsQuery" type="com.path.alert.vo.notification.ALRT_EVT_COMM_MODE_ARG_MAPVO">
+		<result column="ARG_NAME" 		property="ARG_NAME" />
+		<result column="MAPPING_TAG_NAME" 		property="MAPPING_TAG_NAME" />
+		<result column="MAPPING_VALUE" 	property="MAPPING_VALUE" />
+	</resultMap>
+	
+	<resultMap id="argsQueryEvt" type="com.path.alert.vo.notification.ALRT_EVT_BATCH_ARG_MAPCO">
+		<result column="ARG_NAME" 		property="ARG_NAME" />
+		<result column="MAPPING_TAG_NAME" 		property="MAPPING_TAG_NAME" />
+		<result column="MAPPING_VALUE" 	property="MAPPING_VALUE" />
+	</resultMap>
+	
+	
+  
+  
+<select id="countIfIncludeAllSubInGroup" resultType="int" parameterType="com.path.alert.vo.notification.AlertNotificationCO">
+  	Select COUNT(1) FROM ALRT_GRP  WHERE ALRT_GRP.INCLUDE_ALL_SUB_YN = 'Y' AND 
+		<if test='groupIdsList != null'>
+		 	<foreach collection="groupIdsList" open="GRP_ID IN ( " close=")" index="index" separator="," item="item" >
+	          	${item} 
+		   	</foreach>
+		</if>
+  </select>
+  
+
+<select id="returnSubscribersInGroup" resultType="java.math.BigDecimal" parameterType="com.path.alert.vo.notification.AlertNotificationCO">
+        <choose>
+        <when test='"Y".equals(includeAllSubInGrpYN)'>
+            SELECT ALRT_SUB.ID SUB_ID
+            FROM ALRT_SUB     
+            WHERE ALRT_SUB.STATUS = 'P'
+        </when>
+        <otherwise>
+            SELECT SUB_ID from ALRT_SUB_GRP             
+            <if test='groupIdsList != null'>
+                 <foreach collection="groupIdsList" open="WHERE GRP_ID IN ( " close=")" index="index" separator="," item="item" >
+                     ${item}  
+                   </foreach>
+            </if>
+        </otherwise>
+        </choose>
+
+</select>
+   
+
+	 <resultMap type="alrt_EVT_COMM_INTRNLVO" id="InternalEventAlertResMap">
+		<result column="EVT_ID" property="EVT_ID" />
+		<result column="SENDER_USR_ID" property="SENDER_USR_ID" />
+	    <result column="SENDER_USR_EXPR" property="SENDER_USR_EXPR" />
+	    <result column="COMP_CODE" property="COMP_CODE" />
+	    <result column="COMP_DESC" property="COMP_DESC" />
+	    <result column="COMP_CODE_EXPR" property="COMP_CODE_EXPR" />
+	    <result column="BRANCH_CODE" property="BRANCH_CODE" />
+	    <result column="BRANCH_DESC" property="BRANCH_DESC" />
+	    <result column="BRANCH_CODE_EXPR" property="BRANCH_CODE_EXPR" />
+	    <result column="APP_NAME" property="APP_NAME" />
+	    <result column="APP_NAME_EXPR" property="APP_NAME_EXPR" />
+	    <result column="TODO_KEY" property="TODO_KEY" />
+	    <result column="TODO_PROG_REF" property="TODO_PROG_REF" />
+	    <result column="TODO_ALRT" property="TODO_ALRT" />
+	    <result column="ACTIVATED_YN" property="ACTIVATED_YN" />
+	</resultMap>
+	
+	
+	<select id="internalEventDetailsByEvtId" resultMap="InternalEventAlertResMap" parameterType="java.math.BigDecimal">
+		SELECT 
+		     EVT_ID,
+		     SENDER_USR_ID,
+		     SENDER_USR_EXPR,
+		     COMP_CODE,
+		     COMP_DESC,
+		     COMP_CODE_EXPR,
+		     BRANCH_CODE,
+		     BRANCH_DESC,
+		     BRANCH_CODE_EXPR,
+		     APP_NAME,
+		     APP_NAME_EXPR,
+		     TODO_KEY,
+		     TODO_PROG_REF,
+		     TODO_ALRT,
+		     ACTIVATED_YN
+
+		from ALRT_EVT_COMM_INTRNL where EVT_ID=#{eventID}
+	</select>
+	
+	
+	
+
+	
+</mapper>

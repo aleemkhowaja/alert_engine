@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+<mapper namespace="alertConductorMapper">
+
+	<select id="selectDynamic" parameterType="com.path.alert.vo.notification.QueryCO" resultType="java.util.LinkedHashMap">
+	  ${query}
+	</select>
+
+</mapper>
